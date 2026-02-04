@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <p id="status">開啟表單中，請稍候…</p>
+
+  <script>
+    const LIFF_ID = "2009041112-JoSP2XSd";
+    const FORM_BASE = "https://docs.google.com/forms/d/e/1FAIpQLSdd08skGKko8seQa-YeGj1gQMk0UNkcbIffEaDfAnEX41UPrg/viewform?usp=pp_url";
+    const ENTRY_KEY = "entry.2067990070";
+
+    function setStatus(msg){ document.getElementById("status").innerText = msg; }
+
+    async function main() {
+      setStatus("初始化 LIFF 中…");
+      await liff.init({ liffId: LIFF_ID, withLoginOnExternalBrowser: true });
+      await liff.ready;
+
+      if (!liff.isLoggedIn()) {
+        setStatus("尚未登入，跳轉登入中…");
+        liff.login();
+        return;
+      }
+
+      setStatus("取得使用者資訊中…");
+      const profile = await liff.getProfile();
+
+      const url = `${FORM_BASE}&${ENTRY_KEY}=${encodeURIComponent(profile.userId)}`;
+      setStatus("跳轉 Google 表單中…");
+      location.replace(url);
+    }
+
+    main().catch(err => {
+      setStatus("初始化失敗：\n" + (err?.message || err));
+      console.error(err);
+    });
+  </script>
+</body>
+</html>
